@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ChangeEvent, useState, useRef } from "react";
 import { debounce } from "lodash";
 import { changeName } from "../_actions/change-name";
+import { toast } from "sonner";
 
 export function Name({ initialName }: { initialName: string }) {
   const [name, setName] = useState(initialName);
@@ -25,6 +26,8 @@ export function Name({ initialName }: { initialName: string }) {
             return;
           }
 
+          toast.success("Nome alterado com sucesso");
+
           console.log("Salvo com Sucesso");
         } catch (error) {
           console.log(error);
@@ -38,6 +41,8 @@ export function Name({ initialName }: { initialName: string }) {
     const value = e.target.value;
 
     setName(value);
+
+    debouncedSaveName(value);
   }
 
   return (
