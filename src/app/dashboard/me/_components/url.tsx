@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { createUsername } from "../_actions/create-sername";
+import { createUsername } from "../_actions/create-username";
 import { useState } from "react";
 import Link from "next/link";
 import { Link2 } from "lucide-react";

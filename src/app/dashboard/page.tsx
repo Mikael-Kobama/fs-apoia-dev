@@ -15,6 +15,10 @@ export default async function Dashboard() {
       <section className="flex items-center justify-between mb-4">
         <div className="w-full flex items-center gap-2 justify-between">
           <h1 className="text-2xl font-semibold">Minha conta</h1>
+
+          <a className="bg-zinc-900 px-4 py-1 rounded-md text-white cursor-pointer">
+            Ajustar Conta
+          </a>
         </div>
       </section>
 

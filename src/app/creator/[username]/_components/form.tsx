@@ -14,9 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { createPayment } from "../_actions/create-payments";
 
 const formSchema = z.object({
-  username: z.string().min(1, "O nome é obrigatorio").max(50),
+  name: z.string().min(1, "O nome é obrigatorio").max(50),
   message: z.string().min(1, "A mensagem é obrigatoria"),
   price: z.enum(["15", "25", "35"], {
     required_error: "O valor é obrigatorio",
@@ -25,18 +28,33 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function FormDonate() {
+interface FormDonateProps {
+  creatorId: string;
+  slug: string;
+}
+
+export function FormDonate({ slug, creatorId }: FormDonateProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       message: "",
       price: "15",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(data: FormData) {
+    const priceInCents = Number(data.price) * 100;
+
+    const checkout = await createPayment({
+      name: data.name,
+      message: data.message,
+      creatorId: creatorId,
+      slug: slug,
+      price: priceInCents,
+    });
+
+    console.log(checkout);
   }
 
   return (
@@ -44,7 +62,7 @@ export function FormDonate() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-5">
         <FormField
           control={form.control}
-          name="username"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nome</FormLabel>
@@ -72,6 +90,33 @@ export function FormDonate() {
                   {...field}
                   className="bg-white resize-none h-32"
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Valor da Doação</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex items-center gap-3"
+                >
+                  {["15", "25", "35"].map((value) => (
+                    <div className="flex items-center gap-1" key={value}>
+                      <RadioGroupItem value={value} id={value} />
+                      <Label className="text-lg gap-2" htmlFor={value}>
+                        {value}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
