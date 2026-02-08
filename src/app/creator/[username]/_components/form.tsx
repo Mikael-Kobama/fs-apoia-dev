@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { createPayment } from "../_actions/create-payments";
+import { toast } from "sonner";
+import { getStripe } from "@/lib/stripe-js";
 
 const formSchema = z.object({
   name: z.string().min(1, "O nome é obrigatorio").max(50),
@@ -53,6 +55,26 @@ export function FormDonate({ slug, creatorId }: FormDonateProps) {
       slug: slug,
       price: priceInCents,
     });
+
+    if (!checkout) {
+      toast.error("Ocorreu um erro inesperado. Tente novamente.");
+      return;
+    }
+
+    if (checkout.error) {
+      toast.error(checkout.error);
+      return;
+    }
+
+    if (checkout.data) {
+      const data = JSON.parse(checkout.data);
+
+      const stripe = await getStripe();
+
+      await (stripe as any)?.redirectToCheckout({
+        sessionId: data.id as string,
+      });
+    }
 
     console.log(checkout);
   }
@@ -122,7 +144,9 @@ export function FormDonate({ slug, creatorId }: FormDonateProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Fazer Doação</Button>
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Carregando..." : "Fazer Doação"}
+        </Button>
       </form>
     </Form>
   );

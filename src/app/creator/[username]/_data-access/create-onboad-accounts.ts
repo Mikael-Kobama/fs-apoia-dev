@@ -2,7 +2,7 @@
 
 import { stripe } from "@/lib/stripe";
 
-export async function createLoginOnboardAccount(accountId: string | null) {
+export async function getLoginOnboardAccount(accountId: string | undefined) {
   if (!accountId) {
     return null;
   }

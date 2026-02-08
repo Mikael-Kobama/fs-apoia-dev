@@ -1,9 +1,10 @@
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-export async function getStripe() {
-  const stripeJs = await loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string,
-  );
+let stripePromise: Promise<Stripe | null>;
 
-  return stripeJs;
-}
+export const getStripe = () => {
+  if (!stripePromise) {
+    stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+  }
+  return stripePromise;
+};
