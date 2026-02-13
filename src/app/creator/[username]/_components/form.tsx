@@ -56,27 +56,28 @@ export function FormDonate({ slug, creatorId }: FormDonateProps) {
       price: priceInCents,
     });
 
-    if (!checkout) {
-      toast.error("Ocorreu um erro inesperado. Tente novamente.");
-      return;
-    }
+    await handlePaymentResponse(checkout);
+  }
 
+  async function handlePaymentResponse(checkout: {
+    sessionId?: string;
+    error?: string;
+  }) {
     if (checkout.error) {
       toast.error(checkout.error);
       return;
     }
 
-    if (checkout.data) {
-      const data = JSON.parse(checkout.data);
-
-      const stripe = await getStripe();
-
-      await (stripe as any)?.redirectToCheckout({
-        sessionId: data.id as string,
-      });
+    if (!checkout.sessionId) {
+      toast.error("Falha ao criar o pagamento, tente mais tarde.");
+      return;
     }
 
-    console.log(checkout);
+    const stripe = await getStripe();
+
+    await (stripe as any)?.redirectToCheckout({
+      sessionId: checkout.sessionId,
+    });
   }
 
   return (
